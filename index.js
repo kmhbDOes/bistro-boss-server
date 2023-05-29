@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express();
 const cors = require('cors')
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const port = process.env.PORT || 5000
 // middleware
@@ -30,6 +31,12 @@ async function run() {
         const reviewCollection = client.db('bistroDb').collection('reviews')
         const cartCollection = client.db('bistroDb').collection('carts')
 
+        app.post('/jwt', (res, req) => {
+            const user = req.body;
+            const token = jwt.sign(user, env.process.ACCESS_TOKE_SECRET, { expiresIn: '1h' })
+            res.send(token)
+        })
+
         // users related apis
 
         app.get('/users', async (req, res) => {
@@ -49,7 +56,7 @@ async function run() {
             res.send(result)
         })
 
-        app.patch('users/admin/:id', async (req, res) => {
+        app.patch('/users/admin/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const updateDoc = {
